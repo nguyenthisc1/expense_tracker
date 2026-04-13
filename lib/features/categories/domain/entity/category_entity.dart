@@ -1,5 +1,19 @@
-// TODO: Implement CategoryEntity
-// Responsibilities:
-//   - Pure Dart class (no Isar annotations)
-//   - Fields: id, name, iconCodePoint, colorValue, type
-//   - Extend Equatable; include all fields in props
+import 'package:expense_tracker/features/transactions/domain/entity/transaction_entity.dart';
+
+class CategoryEntity {
+  final String id;
+  final String name;
+  final TransactionType type;
+  final int colorValue;
+  final String iconName;
+  final bool isDefault;
+
+  CategoryEntity({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.colorValue,
+    required this.iconName,
+    required this.isDefault,
+  });
+}
