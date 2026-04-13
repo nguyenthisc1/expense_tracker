@@ -7,7 +7,7 @@ class GetMonthlySummaryUsecase {
 
   const GetMonthlySummaryUsecase(this._reportRepository);
 
-  Future<MonthlyReportEntity> call(int year, int month) {
+  Future<MonthlyReportEntity> call({required int year, required int month}) {
     if (month < 1 || month > 12) {
       throw const ValidationException('Month must be between 1 and 12.');
     }

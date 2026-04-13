@@ -1,5 +1,8 @@
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
+import 'package:expense_tracker/features/reports/presentation/cubit/report_cubit.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
+import 'package:expense_tracker/features/settings/presentation/cubit/setting_cubit.dart';
+import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -56,6 +59,7 @@ Future<void> configureDependencies() async {
   _registerDataSources();
   _registerRepositories();
   _registerUseCases();
+  _registerPresentation();
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -172,5 +176,31 @@ void _registerUseCases() {
   sl.registerLazySingleton(() => GetSettingsUsecase(sl<SettingsRepository>()));
   sl.registerLazySingleton(
     () => UpdateSettingsUsecase(sl<SettingsRepository>()),
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Blocs
+// ────────────────────────────────────────────────────────────────────────────
+
+void _registerPresentation() {
+  sl.registerFactory(
+    () => TransactionBloc(
+      getTransactionsUsecase: sl<GetTransactionsUsecase>(),
+      addTransactionUsecase: sl<AddTransactionUsecase>(),
+      updateTransactionUsecase: sl<UpdateTransactionUsecase>(),
+      deleteTransactionUsecase: sl<DeleteTransactionUsecase>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => ReportCubit(getMonthlySummaryUsecase: sl<GetMonthlySummaryUsecase>()),
+  );
+
+  sl.registerFactory(
+    () => SettingsCubit(
+      getSettingsUsecase: sl<GetSettingsUsecase>(),
+      updateSettingsUsecase: sl<UpdateSettingsUsecase>(),
+    ),
   );
 }
