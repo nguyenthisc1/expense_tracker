@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'core/bindings/service_locator.dart';
+import 'core/di/injection.dart';
 import 'core/theme/app_theme.dart';
 import 'routes/app_pages.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Isar and all feature dependencies.
-  await ServiceLocator.init();
-
+  await configureDependencies();
   runApp(const MoneyFlowApp());
 }
 
