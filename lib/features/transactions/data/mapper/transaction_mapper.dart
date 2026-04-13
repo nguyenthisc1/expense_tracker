@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/entity/transaction_type.dart';
 import 'package:expense_tracker/features/transactions/data/model/transaction_model.dart';
 import 'package:expense_tracker/features/transactions/domain/entity/transaction_entity.dart';
 

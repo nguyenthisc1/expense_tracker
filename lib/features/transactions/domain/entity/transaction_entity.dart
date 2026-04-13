@@ -1,17 +1,17 @@
-enum TransactionType { income, expense }
+import 'package:expense_tracker/core/entity/transaction_type.dart';
 
 class TransactionEntity {
   final String id;
   final String title;
   final double amount;
-  final TransactionType type; // income | expense
+  final TransactionType type;
   final DateTime date;
   final String categoryId;
   final String? note;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  TransactionEntity({
+  const TransactionEntity({
     required this.id,
     required this.title,
     required this.amount,
@@ -22,4 +22,28 @@ class TransactionEntity {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  TransactionEntity copyWith({
+    String? id,
+    String? title,
+    double? amount,
+    TransactionType? type,
+    DateTime? date,
+    String? categoryId,
+    String? note,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return TransactionEntity(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      amount: amount ?? this.amount,
+      type: type ?? this.type,
+      date: date ?? this.date,
+      categoryId: categoryId ?? this.categoryId,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

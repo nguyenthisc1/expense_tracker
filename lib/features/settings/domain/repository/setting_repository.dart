@@ -2,5 +2,5 @@ import 'package:expense_tracker/features/settings/domain/entity/setting_entity.d
 
 abstract interface class SettingsRepository {
   Future<AppSettingsEntity> getSettings();
-  Future<AppSettingsEntity> saveSettings(AppSettingsEntity settings);
+  Future<AppSettingsEntity> updateSettings(AppSettingsEntity settings);
 }

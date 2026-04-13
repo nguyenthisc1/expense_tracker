@@ -1,6 +1,6 @@
+import 'package:expense_tracker/core/entity/transaction_type.dart';
 import 'package:expense_tracker/features/categories/data/model/category_model.dart';
 import 'package:expense_tracker/features/categories/domain/entity/category_entity.dart';
-import 'package:expense_tracker/features/transactions/domain/entity/transaction_entity.dart';
 
 class CategoryMapper {
   static CategoryEntity toEntity(CategoryModel model) {

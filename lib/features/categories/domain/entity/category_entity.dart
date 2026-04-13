@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/transactions/domain/entity/transaction_entity.dart';
+import 'package:expense_tracker/core/entity/transaction_type.dart';
 
 class CategoryEntity {
   final String id;
@@ -8,7 +8,7 @@ class CategoryEntity {
   final String iconName;
   final bool isDefault;
 
-  CategoryEntity({
+  const CategoryEntity({
     required this.id,
     required this.name,
     required this.type,
@@ -16,4 +16,22 @@ class CategoryEntity {
     required this.iconName,
     required this.isDefault,
   });
+
+  CategoryEntity copyWith({
+    String? id,
+    String? name,
+    TransactionType? type,
+    int? colorValue,
+    String? iconName,
+    bool? isDefault,
+  }) {
+    return CategoryEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      colorValue: colorValue ?? this.colorValue,
+      iconName: iconName ?? this.iconName,
+      isDefault: isDefault ?? this.isDefault,
+    );
+  }
 }

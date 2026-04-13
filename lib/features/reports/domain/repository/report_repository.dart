@@ -1,4 +1,4 @@
-import 'package:expense_tracker/features/reports/domain/entity/report_entity.dart';
+import 'package:expense_tracker/features/reports/domain/entity/monthly_report_entity.dart';
 
 abstract interface class ReportRepository {
   Future<MonthlyReportEntity> getMonthlySummary({
