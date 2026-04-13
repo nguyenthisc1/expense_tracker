@@ -118,7 +118,7 @@ Page → Bloc/Cubit → UseCase → Repository (abstract) → Repository Impl �
 ```
 lib/
 ├── core/
-│   ├── bindings/         # ServiceLocator (DI setup)
+│   ├── di/         # injector (DI setup)
 │   ├── constants/        # AppColors, AppTypography, AppSpacing, AppRadius,
 │   │                     # AppShadows, AppIcons, AppDurations, DesignTokens
 │   ├── theme/            # AppTheme (ThemeData light + dark using design tokens)
