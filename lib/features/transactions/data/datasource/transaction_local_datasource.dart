@@ -1,5 +1,18 @@
-// TODO: Implement TransactionLocalDatasource
-// Responsibilities:
-//   - CRUD operations on TransactionModel via Isar
-//   - Supports filtering by date range, category, and type
-//   - Returns TransactionModel; no business logic
+import 'package:expense_tracker/features/transactions/data/model/transaction_model.dart';
+
+abstract interface class TransactionLocalDatasource {
+  Future<List<TransactionModel>> getTransactions({
+    DateTime? from,
+    DateTime? to,
+    String? type,
+    String? categoryId,
+  });
+
+  Future<TransactionModel?> getTransactionById(String id);
+
+  Future<TransactionModel> addTransaction(TransactionModel transaction);
+
+  Future<TransactionModel> updateTransaction(TransactionModel transaction);
+
+  Future<void> deleteTransaction(String id);
+}

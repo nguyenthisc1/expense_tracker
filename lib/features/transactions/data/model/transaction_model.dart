@@ -1,5 +1,8 @@
 import 'package:isar/isar.dart';
 
+part 'transaction_model.g.dart';
+
+@collection
 class TransactionModel {
   Id isarId = Isar.autoIncrement;
 

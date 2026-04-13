@@ -1,5 +1,7 @@
 import 'package:isar/isar.dart';
 
+part 'setting_model.g.dart';
+
 @collection
 class AppSettingsModel {
   Id isarId = Isar.autoIncrement;
