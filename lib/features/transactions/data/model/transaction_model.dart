@@ -6,11 +6,17 @@ class TransactionModel {
   @Index(unique: true, replace: true)
   late String id;
 
+  @Index()
+  late DateTime date;
+
+  @Index()
+  late String categoryId;
+
+  @Index()
+  late String type;
+
   late String title;
   late double amount;
-  late String type;
-  late DateTime date;
-  late String categoryId;
   String? note;
   late DateTime createdAt;
   late DateTime updatedAt;

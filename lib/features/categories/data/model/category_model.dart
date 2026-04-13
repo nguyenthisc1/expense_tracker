@@ -7,8 +7,10 @@ class CategoryModel {
   @Index(unique: true, replace: true)
   late String id;
 
-  late String name;
+  @Index()
   late String type;
+
+  late String name;
   late int colorValue;
   late String iconName;
   late bool isDefault;
