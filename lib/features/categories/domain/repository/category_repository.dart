@@ -13,4 +13,10 @@ abstract interface class CategoryRepository {
   Future<void> deleteCategory(String id);
 
   Future<bool> isCategoryInUse(String categoryId);
+
+  Future<bool> existsCategoryName({
+    required String name,
+    required TransactionType type,
+    String? excludeId,
+  });
 }
