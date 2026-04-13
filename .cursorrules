@@ -1,0 +1,199 @@
+# AI Assistant Technical Instructions
+
+You are an AI assistant with advanced problem-solving capabilities. Please follow these instructions in a structured and sequential manner for every assigned task.
+
+---
+
+## 1. Instruction Confirmation
+
+- Confirm and clearly restate the user instructions for the task at hand prior to beginning.
+- Seek clarification for any unclear points before starting work.
+
+---
+
+## 2. Task Analysis & Planning
+
+- Summarize the main objectives and requirements.
+- Review and align the solution with the approved tech stack and project constraints.
+- List any special requirements or potential risks.
+- Break down the task into clear, actionable steps.
+- Check for existing or duplicate implementations (functions, components, endpoints, or reusable logic).
+
+---
+
+## 3. Implementation
+
+- Follow the planned steps sequentially.
+- Use the designated directory structure and naming conventions outlined in the project.
+- Execute code changes in accordance with placement and organization guidelines.
+- Avoid unnecessary or out-of-scope changes unless formally approved.
+- After each significant step, briefly document progress.
+
+---
+
+## 4. Quality Control & Problem Resolution
+
+- Rapidly verify expected outcomes after each update.
+- If issues arise, address them systematically:
+  - Isolate and diagnose the root cause (logs, debugging info).
+  - Apply proper corrective measures.
+  - Re-verify operation after fixes.
+  - Record findings and document changes.
+
+- Log any validation following this structure:
+  a. What was verified (expected outcome)
+  b. What actually occurred, and any disparities
+  c. Additional steps taken (if needed)
+
+---
+
+## 5. Final Review
+
+- Double-check deliverables for full alignment with the original user instructions.
+- Ensure no duplicate logic or function remains.
+- Verify that all new code is well-organized and compliant with project standards.
+
+---
+
+## 6. Results Reporting
+
+- Summarize outcome in a report using this format:
+
+markdown
+# Execution Results Report
+
+## Overview
+
+[One-paragraph summary of the task and its results]
+
+## Execution Steps
+
+1. [What was done in Step 1, with any key findings or results]
+2. [Step 2 summary]
+...
+
+## Final Deliverables
+
+[List of files or links to changes]
+
+## Issue Resolution (if any)
+
+- [Problems encountered and solutions]
+- [Further recommendations, if needed]
+
+## Notes & Suggestions
+
+- [Insights or ideas for improvement, efficiency, or quality, as observed during the process]
+
+---
+
+## Important Project Guidelines
+
+- Confirm unclear instructions before acting.
+- Obtain explicit approval for any important or out-of-scope decisions.
+- Immediately communicate and discuss unexpected problems or constraints.
+- **Do not perform changes not strictly requested in user instructions. Propose and await approval first if changes seem necessary.**
+- **Do not alter UI/UX (layout, color, spacing, design) unless this has been formally justified and approved.**
+- **Do not change versions of any libraries, frameworks, or APIs without clear rationale and user approval.**
+
+---
+
+## Reference: Tech Stack
+
+- Flutter: ^3.22.0
+- State Management: Bloc / Cubit (flutter_bloc ^9.x, bloc ^9.x)
+- Local Storage: Isar ^3.1.x (single storage solution for all features)
+- Routing: GoRouter ^17.x
+- Utilities: equatable, intl, uuid, path_provider
+- Code Generation: build_runner (isar_generator added per-feature; conflicts with bloc_test — see pubspec note)
+- Testing: bloc_test ^10.x, mocktail ^1.x
+
+---
+
+## Reference: Directory & Project Structure
+
+Feature-based Layered Architecture. Every feature follows:
+Page → Bloc/Cubit → UseCase → Repository (abstract) → Repository Impl → DataSource → Isar
+
+```
+lib/
+├── core/
+│   ├── bindings/         # ServiceLocator (DI setup)
+│   ├── constants/        # AppColors, AppTypography, AppSpacing, AppRadius,
+│   │                     # AppShadows, AppIcons, AppDurations, DesignTokens
+│   ├── theme/            # AppTheme (ThemeData light + dark using design tokens)
+│   ├── utils/            # DateUtils, CurrencyUtils, extensions
+│   └── widgets/          # AppScaffold, LoadingIndicator, ErrorView, EmptyState
+├── features/
+│   ├── transactions/
+│   │   ├── data/         # model (Isar schema), datasource, repository_impl, mapper
+│   │   ├── domain/       # entity, repository (abstract), usecases
+│   │   └── presentation/ # page, bloc (+ event + state), widgets
+│   ├── reports/
+│   │   ├── data/
+│   │   ├── domain/
+│   │   └── presentation/
+│   ├── categories/
+│   │   ├── data/
+│   │   ├── domain/
+│   │   └── presentation/
+│   └── settings/
+│       └── presentation/ # page, bloc (+ event + state), widgets
+├── routes/
+│   ├── app_routes.dart   # Route path constants
+│   └── app_pages.dart    # GoRouter configuration
+└── main.dart
+```
+
+### Layer Responsibilities
+
+| Layer | Location | Responsibility |
+|---|---|---|
+| Page | `presentation/page/` | UI only; reads state from Bloc, dispatches events |
+| Bloc/Cubit | `presentation/bloc/` | State management; calls UseCases |
+| UseCase | `domain/usecase/` | Single business operation; depends on abstract repository |
+| Repository (abstract) | `domain/repository/` | Interface only; no implementation |
+| Repository Impl | `data/repository/` | Implements abstract; delegates to DataSource |
+| DataSource | `data/datasource/` | Direct Isar CRUD; no business logic |
+| Model | `data/model/` | Isar-annotated schema class |
+| Mapper | `data/mapper/` | Converts Model ↔ Entity |
+| Entity | `domain/entity/` | Pure Dart; no Isar annotations |
+
+### Bloc vs Cubit Decision
+
+- Use **Cubit** for simple state (categories, settings, UI toggles).
+- Use **Bloc** for complex flows requiring event traceability (transactions, reports).
+- Default to Cubit; refactor to Bloc only when requirements grow.
+
+### Naming Conventions (Bloc)
+
+- Events: past tense — `TransactionAdded`, `TransactionDeleted`, `TransactionStarted`
+- States: noun snapshots — `TransactionInitial`, `TransactionInProgress`, `TransactionSuccess`, `TransactionFailure`
+- UseCases: `VerbNounUseCase` — `GetTransactionsUseCase`, `AddCategoryUseCase`
+- Entities: `NounEntity` — `TransactionEntity`, `CategoryEntity`
+- Models: `NounModel` — `TransactionModel`, `CategoryModel`
+
+---
+
+## Key Principles
+
+- Feature code must be self-contained.
+- Strict separation of data, business logic, and UI.
+- Each file/class should serve a single, clear purpose.
+- Prevent code duplication (DRY principle).
+- Always prefer feature-level organization where possible.
+- Never use raw Isar queries outside of a DataSource class.
+- Never reference Isar models in domain or presentation layers; use entities only.
+
+## Design Token Rules
+
+- ALL visual values (colors, spacing, typography, radius, shadows, icon sizes, durations) MUST be referenced via design token constants.
+- Use `AppColors`, `AppTypography`, `AppSpacing`, `AppRadius`, `AppShadows`, `AppIcons`, `AppDurations`, or the aggregate `DesignTokens` class — all located in `lib/core/constants/`.
+- NEVER hardcode hex colors, pixel sizes, font sizes, or duration values in feature or widget files.
+- If introducing a new design value not already in the token files, define it there first, then reference it.
+- The emerald-slate color theme is the source of truth:
+  - Primary brand color: emerald (`AppColors.primary` = emerald-500 `#10b981`)
+  - Neutral/background: slate (`AppColors.neutral` scale)
+  - All surface, border, text, and icon colors use the slate scale.
+
+Adhere rigorously to these guidelines for robust, maintainable, and scalable implementation.
