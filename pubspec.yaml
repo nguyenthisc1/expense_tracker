@@ -37,12 +37,12 @@ dependencies:
   flutter_bloc: ^9.1.1
   bloc: ^9.2.0
   equatable: ^2.0.8
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
   go_router: ^17.2.0
   path_provider: ^2.1.5
   intl: ^0.20.2
   uuid: ^4.5.3
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
 
 dev_dependencies:
   flutter_test:
@@ -54,13 +54,17 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  bloc_test: ^10.0.0
-  mocktail: ^1.0.5
-  build_runner: ^2.13.1
-  isar_generator: ">=3.0.0 <3.0.0-dev.0"
-  # NOTE: isar_generator conflicts with bloc_test on this SDK.
-  # To run code generation for a feature, temporarily comment out bloc_test/mocktail,
-  # add isar_generator, run `dart run build_runner build`, then restore.
+  isar_generator: ^3.1.0+1
+  build_runner: ^2.4.13
+  # isar_generator is NOT listed here because it conflicts with bloc_test on this
+  # beta SDK (isar_generator pins analyzer ^5.0.0; flutter_test SDK pins test_api
+  # 0.7.8 which forces incompatible test/analyzer versions).
+  #
+  # To run Isar schema code generation, use the helper script:
+  #   ./scripts/codegen.sh               # regenerate all schemas
+  #   ./scripts/codegen.sh transactions  # regenerate one feature only
+  #
+  # The script swaps dev_dependencies temporarily, runs build_runner, then restores.
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
