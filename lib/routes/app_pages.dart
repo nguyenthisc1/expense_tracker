@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../core/di/injection.dart';
 import '../presentation/categories/page/categories_page.dart';
 import '../presentation/categories/widget/category_form.dart';
 import '../presentation/home/page/home_page.dart';
 import '../presentation/reports/page/reports_page.dart';
 import '../presentation/settings/page/settings_page.dart';
 import '../presentation/splash/page/splash_page.dart';
+import '../presentation/transactions/bloc/transaction_bloc.dart';
+import '../presentation/transactions/bloc/transaction_event.dart';
 import '../presentation/transactions/page/add_transaction_page.dart';
 import '../presentation/transactions/page/transactions_page.dart';
 import 'app_routes.dart';
@@ -60,18 +64,27 @@ final class AppPages {
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.transactions,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: TransactionsPage(),
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: BlocProvider(
+                create: (_) => sl<TransactionBloc>()..add(const LoadTransactions()),
+                child: const TransactionsPage(),
+              ),
             ),
             routes: [
               GoRoute(
                 path: 'add',
-                builder: (context, state) => const AddTransactionPage(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => sl<TransactionBloc>(),
+                  child: const AddTransactionPage(),
+                ),
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) => AddTransactionPage(
-                  transactionId: state.pathParameters['id'],
+                builder: (context, state) => BlocProvider(
+                  create: (_) => sl<TransactionBloc>(),
+                  child: AddTransactionPage(
+                    transactionId: state.pathParameters['id'],
+                  ),
                 ),
               ),
             ],
@@ -196,4 +209,3 @@ class _AppShell extends StatelessWidget {
     }
   }
 }
-
