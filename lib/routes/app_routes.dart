@@ -4,11 +4,25 @@
 /// in [AppPages] and in `context.go()` / `context.push()` calls.
 abstract final class AppRoutes {
   // ---------------------------------------------------------------------------
-  // Root
+  // Splash
   // ---------------------------------------------------------------------------
 
-  /// Shell / bottom-nav root.
+  /// Initial branding screen shown once at app launch.
+  static const String splash = '/splash';
+
+  // ---------------------------------------------------------------------------
+  // Root / Shell
+  // ---------------------------------------------------------------------------
+
+  /// Shell / bottom-nav root — redirects to [home].
   static const String root = '/';
+
+  // ---------------------------------------------------------------------------
+  // Home
+  // ---------------------------------------------------------------------------
+
+  /// Dashboard home tab (first shell tab).
+  static const String home = '/home';
 
   // ---------------------------------------------------------------------------
   // Transactions

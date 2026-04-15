@@ -1,64 +1,92 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/home/presentation/page/home_page.dart';
+import '../features/reports/presentation/page/reports_page.dart';
+import '../features/settings/presentation/page/settings_page.dart';
+import '../features/splash/presentation/page/splash_page.dart';
+import '../features/transactions/presentation/page/add_transaction_page.dart';
+import '../features/transactions/presentation/page/transactions_page.dart';
 import 'app_routes.dart';
-
-// Feature pages are imported here as each feature is implemented.
-// Placeholder widgets are used until then.
 
 /// GoRouter configuration for MoneyFlow.
 ///
-/// Uses a [ShellRoute] with a bottom navigation bar to host the four
-/// main tabs: Transactions, Reports, Categories, and Settings.
-///
-/// As feature pages are implemented, replace [_PlaceholderPage] with
-/// the real page imports from each feature's presentation/page/ folder.
+/// Flow: SplashPage → auto-navigate to ShellRoute (home tab).
+/// Shell tabs: Home · Transactions · Reports · Categories · Settings.
 final class AppPages {
   AppPages._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: AppRoutes.transactions,
+    initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
+    redirect: (context, state) {
+      if (state.matchedLocation == AppRoutes.root) {
+        return AppRoutes.home;
+      }
+      return null;
+    },
     routes: [
+      // --------------------------------------------------------------------
+      // Splash — outside the shell (no bottom nav)
+      // --------------------------------------------------------------------
+      GoRoute(
+        path: AppRoutes.splash,
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: SplashPage(),
+        ),
+      ),
+
+      // --------------------------------------------------------------------
+      // Main shell with bottom navigation bar
+      // --------------------------------------------------------------------
       ShellRoute(
         builder: (context, state, child) => _AppShell(child: child),
         routes: [
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
+          // Home tab
+          // ----------------------------------------------------------------
+          GoRoute(
+            path: AppRoutes.home,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: HomePage(),
+            ),
+          ),
+
+          // ----------------------------------------------------------------
           // Transactions tab
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.transactions,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _PlaceholderPage(title: 'Transactions'),
+              child: TransactionsPage(),
             ),
             routes: [
               GoRoute(
                 path: 'add',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Add Transaction'),
+                builder: (context, state) => const AddTransactionPage(),
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) => _PlaceholderPage(
-                  title: 'Edit Transaction (${state.pathParameters['id']})',
+                builder: (context, state) => AddTransactionPage(
+                  transactionId: state.pathParameters['id'],
                 ),
               ),
             ],
           ),
 
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
           // Reports tab
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.reports,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _PlaceholderPage(title: 'Reports'),
+              child: ReportsPage(),
             ),
           ),
 
-          // ------------------------------------------------------------------
-          // Categories tab
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
+          // Categories tab (placeholder — implemented separately)
+          // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.categories,
             pageBuilder: (context, state) => const NoTransitionPage(
@@ -79,13 +107,13 @@ final class AppPages {
             ],
           ),
 
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
           // Settings tab
-          // ------------------------------------------------------------------
+          // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.settings,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _PlaceholderPage(title: 'Settings'),
+              child: SettingsPage(),
             ),
           ),
         ],
@@ -114,6 +142,11 @@ class _AppShell extends StatelessWidget {
         onDestinationSelected: (index) => _onTabSelected(context, index),
         destinations: const [
           NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.swap_vert_outlined),
             selectedIcon: Icon(Icons.swap_vert),
             label: 'Transactions',
@@ -139,28 +172,31 @@ class _AppShell extends StatelessWidget {
   }
 
   int _tabIndexOf(String location) {
-    if (location.startsWith(AppRoutes.reports)) return 1;
-    if (location.startsWith(AppRoutes.categories)) return 2;
-    if (location.startsWith(AppRoutes.settings)) return 3;
-    return 0;
+    if (location.startsWith(AppRoutes.transactions)) return 1;
+    if (location.startsWith(AppRoutes.reports)) return 2;
+    if (location.startsWith(AppRoutes.categories)) return 3;
+    if (location.startsWith(AppRoutes.settings)) return 4;
+    return 0; // home
   }
 
   void _onTabSelected(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go(AppRoutes.transactions);
+        context.go(AppRoutes.home);
       case 1:
-        context.go(AppRoutes.reports);
+        context.go(AppRoutes.transactions);
       case 2:
-        context.go(AppRoutes.categories);
+        context.go(AppRoutes.reports);
       case 3:
+        context.go(AppRoutes.categories);
+      case 4:
         context.go(AppRoutes.settings);
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Placeholder page — replaced as features are implemented
+// Placeholder page — used for unimplemented tabs
 // ---------------------------------------------------------------------------
 
 class _PlaceholderPage extends StatelessWidget {
