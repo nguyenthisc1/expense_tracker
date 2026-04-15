@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_icons.dart';
@@ -35,7 +36,7 @@ class ErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              icon ?? Icons.error_outline_rounded,
+              icon ?? LucideIcons.triangleAlert,
               size: AppIcons.emptyState,
               color: AppColors.error,
             ),
@@ -61,7 +62,7 @@ class ErrorView extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               OutlinedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
+                icon: const Icon(LucideIcons.refreshCw),
                 label: Text(retryLabel),
               ),
             ],

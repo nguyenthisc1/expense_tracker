@@ -1,7 +1,7 @@
 import 'package:expense_tracker/features/settings/domain/entity/setting_entity.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/get_setting_usecase.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
-import 'package:expense_tracker/features/settings/presentation/cubit/setting_state.dart';
+import 'package:expense_tracker/presentation/settings/cubit/setting_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {

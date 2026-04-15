@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../features/home/presentation/page/home_page.dart';
-import '../features/reports/presentation/page/reports_page.dart';
-import '../features/settings/presentation/page/settings_page.dart';
-import '../features/splash/presentation/page/splash_page.dart';
-import '../features/transactions/presentation/page/add_transaction_page.dart';
-import '../features/transactions/presentation/page/transactions_page.dart';
+import '../presentation/categories/page/categories_page.dart';
+import '../presentation/categories/widget/category_form.dart';
+import '../presentation/home/page/home_page.dart';
+import '../presentation/reports/page/reports_page.dart';
+import '../presentation/settings/page/settings_page.dart';
+import '../presentation/splash/page/splash_page.dart';
+import '../presentation/transactions/page/add_transaction_page.dart';
+import '../presentation/transactions/page/transactions_page.dart';
 import 'app_routes.dart';
 
 /// GoRouter configuration for MoneyFlow.
@@ -85,23 +88,22 @@ final class AppPages {
           ),
 
           // ----------------------------------------------------------------
-          // Categories tab (placeholder — implemented separately)
+          // Categories tab
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.categories,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _PlaceholderPage(title: 'Categories'),
+              child: CategoriesPage(),
             ),
             routes: [
               GoRoute(
                 path: 'add',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Add Category'),
+                builder: (context, state) => const CategoryFormPage(),
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) => _PlaceholderPage(
-                  title: 'Edit Category (${state.pathParameters['id']})',
+                builder: (context, state) => CategoryFormPage(
+                  categoryId: state.pathParameters['id'],
                 ),
               ),
             ],
@@ -142,28 +144,28 @@ class _AppShell extends StatelessWidget {
         onDestinationSelected: (index) => _onTabSelected(context, index),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
+            icon: Icon(LucideIcons.house),
+            selectedIcon: Icon(LucideIcons.house),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.swap_vert_outlined),
-            selectedIcon: Icon(Icons.swap_vert),
+            icon: Icon(LucideIcons.arrowUpDown),
+            selectedIcon: Icon(LucideIcons.arrowUpDown),
             label: 'Transactions',
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
+            icon: Icon(LucideIcons.chartBar),
+            selectedIcon: Icon(LucideIcons.chartBar),
             label: 'Reports',
           ),
           NavigationDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
+            icon: Icon(LucideIcons.layoutGrid),
+            selectedIcon: Icon(LucideIcons.layoutGrid),
             label: 'Categories',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
+            icon: Icon(LucideIcons.settings),
+            selectedIcon: Icon(LucideIcons.settings),
             label: 'Settings',
           ),
         ],
@@ -195,26 +197,3 @@ class _AppShell extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Placeholder page — used for unimplemented tabs
-// ---------------------------------------------------------------------------
-
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Text(
-          '$title\n(under construction)',
-          style: Theme.of(context).textTheme.bodyLarge,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_icons.dart';
@@ -37,7 +38,7 @@ class EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              icon ?? Icons.inbox_outlined,
+              icon ?? LucideIcons.inbox,
               size: AppIcons.emptyState,
               color: iconColor ?? AppColors.slate300,
             ),

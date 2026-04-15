@@ -2,8 +2,8 @@ import 'package:expense_tracker/features/transactions/domain/usecase/add_transac
 import 'package:expense_tracker/features/transactions/domain/usecase/delete_transaction_usecase.dart';
 import 'package:expense_tracker/features/transactions/domain/usecase/get_transactions_usecase.dart';
 import 'package:expense_tracker/features/transactions/domain/usecase/update_transaction_usecase.dart';
-import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_event.dart';
-import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_state.dart';
+import 'package:expense_tracker/presentation/transactions/bloc/transaction_event.dart';
+import 'package:expense_tracker/presentation/transactions/bloc/transaction_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {

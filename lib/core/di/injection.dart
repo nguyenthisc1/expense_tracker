@@ -1,8 +1,8 @@
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
-import 'package:expense_tracker/features/reports/presentation/cubit/report_cubit.dart';
+import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
-import 'package:expense_tracker/features/settings/presentation/cubit/setting_cubit.dart';
-import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
+import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
+import 'package:expense_tracker/presentation/transactions/bloc/transaction_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
