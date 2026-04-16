@@ -1,4 +1,6 @@
+import 'package:expense_tracker/core/seed/app_seed_service.dart';
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
+import 'package:expense_tracker/features/reports/domain/usecase/get_detailed_report_usecase.dart';
 import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
@@ -60,6 +62,7 @@ Future<void> configureDependencies() async {
   _registerRepositories();
   _registerUseCases();
   _registerPresentation();
+  _registerSeeds();
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -171,6 +174,9 @@ void _registerUseCases() {
   sl.registerLazySingleton(
     () => GetMonthlySummaryUsecase(sl<ReportRepository>()),
   );
+  sl.registerLazySingleton(
+    () => GetDetailedReportUsecase(sl<ReportRepository>()),
+  );
 
   // ── Settings ──────────────────────────────────────────────────────────────
   sl.registerLazySingleton(() => GetSettingsUsecase(sl<SettingsRepository>()));
@@ -194,13 +200,29 @@ void _registerPresentation() {
   );
 
   sl.registerFactory(
-    () => ReportCubit(getMonthlySummaryUsecase: sl<GetMonthlySummaryUsecase>()),
+    () => ReportCubit(
+      getMonthlySummaryUsecase: sl<GetMonthlySummaryUsecase>(),
+      getDetailedReportUsecase: sl<GetDetailedReportUsecase>(),
+    ),
   );
 
   sl.registerFactory(
     () => SettingsCubit(
       getSettingsUsecase: sl<GetSettingsUsecase>(),
       updateSettingsUsecase: sl<UpdateSettingsUsecase>(),
+    ),
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Seeds
+// ────────────────────────────────────────────────────────────────────────────
+void _registerSeeds() {
+  sl.registerLazySingleton<AppSeedService>(
+    () => AppSeedService(
+      sl<SettingsRepository>(),
+      sl<CategoryRepository>(),
+      sl<TransactionRepository>(),
     ),
   );
 }

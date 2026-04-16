@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/seed/seed_runner.dart';
 import 'package:flutter/material.dart';
 
 import 'core/di/injection.dart';
@@ -7,6 +8,7 @@ import 'routes/app_pages.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
+  await runInitialSeed();
   runApp(const MoneyFlowApp());
 }
 
