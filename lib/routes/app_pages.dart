@@ -1,3 +1,4 @@
+import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -38,9 +39,8 @@ final class AppPages {
       // --------------------------------------------------------------------
       GoRoute(
         path: AppRoutes.splash,
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: SplashPage(),
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: SplashPage()),
       ),
 
       // --------------------------------------------------------------------
@@ -54,9 +54,8 @@ final class AppPages {
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.home,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: HomePage(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: HomePage()),
           ),
 
           // ----------------------------------------------------------------
@@ -66,7 +65,8 @@ final class AppPages {
             path: AppRoutes.transactions,
             pageBuilder: (context, state) => NoTransitionPage(
               child: BlocProvider(
-                create: (_) => sl<TransactionBloc>()..add(const LoadTransactions()),
+                create: (_) =>
+                    sl<TransactionBloc>()..add(const LoadTransactions()),
                 child: const TransactionsPage(),
               ),
             ),
@@ -95,8 +95,11 @@ final class AppPages {
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.reports,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ReportsPage(),
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: BlocProvider(
+                create: (context) => sl<ReportCubit>()..loadCurrentMonth(),
+                child: ReportsPage(),
+              ),
             ),
           ),
 
@@ -105,9 +108,8 @@ final class AppPages {
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.categories,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: CategoriesPage(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: CategoriesPage()),
             routes: [
               GoRoute(
                 path: 'add',
@@ -115,9 +117,8 @@ final class AppPages {
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) => CategoryFormPage(
-                  categoryId: state.pathParameters['id'],
-                ),
+                builder: (context, state) =>
+                    CategoryFormPage(categoryId: state.pathParameters['id']),
               ),
             ],
           ),
@@ -127,9 +128,8 @@ final class AppPages {
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.settings,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: SettingsPage(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: SettingsPage()),
           ),
         ],
       ),
