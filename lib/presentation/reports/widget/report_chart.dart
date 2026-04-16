@@ -1,96 +1,295 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_radius.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/utils/currency_utils.dart';
+import '../../../features/reports/domain/entity/detailed_report_entity.dart';
+import '../../../features/reports/domain/entity/report_breakdown_point_entity.dart';
+import '../../../features/reports/domain/entity/report_breakdown_type.dart';
+import '../../../features/reports/domain/entity/report_period_type.dart';
 
-class ReportChart extends StatelessWidget {
-  const ReportChart({super.key, this.showIncome = false});
+class ReportChart extends StatefulWidget {
+  const ReportChart({super.key, this.dataReport});
 
-  final bool showIncome;
+  final DetailedReportEntity? dataReport;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 180,
-      child: CustomPaint(
-        painter: _MonthlyBarChartPainter(showIncome: showIncome),
-        size: const Size(double.infinity, 180),
+  State<ReportChart> createState() => _ReportChartState();
+}
+
+class _ReportChartState extends State<ReportChart> {
+  static const double _yAxisUnit = 10000;
+
+  late TooltipBehavior _tooltipBehavior;
+  late TrackballBehavior _trackballBehavior;
+
+  @override
+  void initState() {
+    super.initState();
+    _tooltipBehavior = TooltipBehavior(
+      enable: true,
+      canShowMarker: true,
+      header: '',
+      color: AppColors.primary,
+      textStyle: const TextStyle(
+        color: AppColors.onPrimary,
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+      ),
+    );
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      activationMode: ActivationMode.singleTap,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      tooltipSettings: const InteractiveTooltip(
+        color: AppColors.primary,
+        textStyle: TextStyle(
+          color: AppColors.onPrimary,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
       ),
     );
   }
-}
-
-class _MonthlyBarChartPainter extends CustomPainter {
-  const _MonthlyBarChartPainter({required this.showIncome});
-
-  final bool showIncome;
-
-  static const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  static const _incomeValues = [0.5, 0.6, 0.55, 0.7, 0.65, 0.75];
-  static const _expenseValues = [0.4, 0.5, 0.45, 0.6, 0.5, 0.65];
 
   @override
-  void paint(Canvas canvas, Size size) {
-    const labelHeight = 24.0;
-    final chartHeight = size.height - labelHeight;
-    final groupWidth = size.width / _months.length;
-    const barWidth = 10.0;
-    const barGap = 4.0;
-    const radius = Radius.circular(4);
+  Widget build(BuildContext context) {
+    final report = widget.dataReport;
+    if (report == null || report.breakdown.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-    final incomePaint = Paint()
-      ..color = AppColors.income
-      ..style = PaintingStyle.fill;
-    final expensePaint = Paint()
-      ..color = AppColors.expense.withValues(alpha: 0.8)
-      ..style = PaintingStyle.fill;
-    final dimIncome = Paint()
-      ..color = AppColors.primaryContainer
-      ..style = PaintingStyle.fill;
-    final dimExpense = Paint()
-      ..color = AppColors.expenseLight
-      ..style = PaintingStyle.fill;
+    final chartData = report.breakdown
+        .map(
+          (point) => _ChartPoint(
+            xLabel: _formatDisplayLabel(
+              report.periodType,
+              report.breakdownType,
+              point,
+            ),
+            income: point.income,
+            expense: point.expense,
+            originalLabel: point.label,
+          ),
+        )
+        .toList();
 
-    for (var i = 0; i < _months.length; i++) {
-      final centerX = groupWidth * i + groupWidth / 2;
-      final incomeX = centerX - barWidth - barGap / 2;
-      final expenseX = centerX + barGap / 2;
+    final chartWidth = _calculateChartWidth(report, chartData.length);
+    final maxY = _calculateMaxY(chartData);
 
-      final incomeH = chartHeight * _incomeValues[i];
-      final expenseH = chartHeight * _expenseValues[i];
-
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(incomeX, chartHeight - incomeH, barWidth, incomeH),
-          radius,
-        ),
-        showIncome ? incomePaint : dimIncome,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(expenseX, chartHeight - expenseH, barWidth, expenseH),
-          radius,
-        ),
-        showIncome ? dimExpense : expensePaint,
-      );
-
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: _months[i],
-          style: const TextStyle(
-            fontSize: 10,
-            color: AppColors.textSecondaryLight,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+          child: Text(
+            'Unit: x10k',
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.textSecondaryLight,
+            ),
           ),
         ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      textPainter.paint(
-        canvas,
-        Offset(centerX - textPainter.width / 2, chartHeight + 6),
-      );
+        SizedBox(
+          width: chartWidth,
+          height: 250,
+          child: SfCartesianChart(
+            margin: const EdgeInsets.fromLTRB(4, 12, 12, 0),
+            plotAreaBorderWidth: 0,
+            tooltipBehavior: _tooltipBehavior,
+            trackballBehavior: _trackballBehavior,
+            primaryXAxis: CategoryAxis(
+              axisLine: const AxisLine(width: 0),
+              majorTickLines: const MajorTickLines(size: 0),
+              majorGridLines: const MajorGridLines(width: 0),
+              labelStyle: AppTypography.labelSmall.copyWith(
+                color: AppColors.textSecondaryLight,
+              ),
+              labelRotation:
+                  report.breakdownType == ReportBreakdownType.day &&
+                      report.periodType == ReportPeriodType.month
+                  ? 0
+                  : 0,
+              maximumLabels: chartData.length,
+            ),
+            primaryYAxis: NumericAxis(
+              minimum: 0,
+              maximum: maxY,
+              desiredIntervals: 4,
+              axisLine: const AxisLine(width: 0),
+              majorTickLines: const MajorTickLines(size: 0),
+              majorGridLines: const MajorGridLines(
+                width: 0.8,
+                color: AppColors.borderLight,
+              ),
+              labelStyle: AppTypography.labelSmall.copyWith(
+                color: AppColors.textSecondaryLight,
+              ),
+              axisLabelFormatter: (details) {
+                final scaled = details.value / _yAxisUnit;
+                return ChartAxisLabel(
+                  _formatAxisValue(scaled),
+                  AppTypography.labelSmall.copyWith(
+                    color: AppColors.textSecondaryLight,
+                  ),
+                );
+              },
+            ),
+            legend: Legend(
+              isVisible: false,
+              position: LegendPosition.bottom,
+              overflowMode: LegendItemOverflowMode.wrap,
+              textStyle: AppTypography.labelSmall.copyWith(
+                color: AppColors.textSecondaryLight,
+              ),
+            ),
+            series: <CartesianSeries<_ChartPoint, String>>[
+              ColumnSeries<_ChartPoint, String>(
+                name: 'Income',
+                dataSource: chartData,
+                xValueMapper: (point, _) => point.xLabel,
+                yValueMapper: (point, _) => point.income,
+                pointColorMapper: (_, __) => AppColors.income,
+                width: 0.38,
+                spacing: 0.2,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.md),
+                ),
+                enableTooltip: true,
+                isVisibleInLegend: true,
+              ),
+              ColumnSeries<_ChartPoint, String>(
+                name: 'Expense',
+                dataSource: chartData,
+                xValueMapper: (point, _) => point.xLabel,
+                yValueMapper: (point, _) => point.expense,
+                pointColorMapper: (_, __) => AppColors.expense,
+                width: 0.38,
+                spacing: 0.2,
+                isVisibleInLegend: true,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.md),
+                ),
+                enableTooltip: true,
+              ),
+            ],
+            onTooltipRender: (args) {
+              final point = chartData[args.pointIndex?.toInt() ?? 0];
+              final isIncome = args.seriesIndex == 0;
+              final value = isIncome ? point.income : point.expense;
+              args.text =
+                  '${point.xLabel}\n${isIncome ? 'Income' : 'Expense'}: ${CurrencyUtils.format(value)}';
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  double _calculateChartWidth(DetailedReportEntity report, int pointCount) {
+    switch (report.periodType) {
+      case ReportPeriodType.week:
+        return 340;
+      case ReportPeriodType.month:
+        if (report.breakdownType == ReportBreakdownType.day) {
+          return pointCount * 44.0;
+        }
+        return pointCount * 68.0;
+      case ReportPeriodType.year:
+        return pointCount * 54.0;
     }
   }
 
+  double _calculateMaxY(List<_ChartPoint> points) {
+    final values = <double>[
+      ...points.map((point) => point.income),
+      ...points.map((point) => point.expense),
+    ];
+
+    final max = values.fold<double>(0, (current, value) {
+      return value > current ? value : current;
+    });
+
+    if (max == 0) {
+      return _yAxisUnit;
+    }
+
+    return max * 1.2;
+  }
+
+  String _formatAxisValue(double value) {
+    if (value >= 100) {
+      return value.toStringAsFixed(0);
+    }
+    if (value >= 10) {
+      return value.toStringAsFixed(0);
+    }
+    if (value == value.roundToDouble()) {
+      return value.toStringAsFixed(0);
+    }
+    return value.toStringAsFixed(1);
+  }
+
+  String _formatDisplayLabel(
+    ReportPeriodType periodType,
+    ReportBreakdownType breakdownType,
+    ReportBreakdownPointEntity point,
+  ) {
+    if (periodType == ReportPeriodType.week &&
+        breakdownType == ReportBreakdownType.day) {
+      return DateFormat('E').format(point.startDate);
+    }
+
+    if (periodType == ReportPeriodType.month &&
+        breakdownType == ReportBreakdownType.day) {
+      return point.startDate.day.toString();
+    }
+
+    if (periodType == ReportPeriodType.month &&
+        breakdownType == ReportBreakdownType.week) {
+      return 'W${_weekOfMonth(point.startDate)}';
+    }
+
+    if (periodType == ReportPeriodType.year &&
+        breakdownType == ReportBreakdownType.month) {
+      return DateFormat('MMM').format(point.startDate);
+    }
+
+    return point.label;
+  }
+
+  int _weekOfMonth(DateTime date) {
+    final firstDay = DateTime(date.year, date.month, 1);
+    return ((date.day + firstDay.weekday - 2) / 7).floor() + 1;
+  }
+}
+
+class _ChartPoint {
+  const _ChartPoint({
+    required this.xLabel,
+    required this.income,
+    required this.expense,
+    required this.originalLabel,
+  });
+
+  final String xLabel;
+  final double income;
+  final double expense;
+  final String originalLabel;
+}
+
+class _NoGlowScrollBehavior extends ScrollBehavior {
+  const _NoGlowScrollBehavior();
+
   @override
-  bool shouldRepaint(covariant _MonthlyBarChartPainter oldDelegate) =>
-      oldDelegate.showIncome != showIncome;
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
+  }
 }

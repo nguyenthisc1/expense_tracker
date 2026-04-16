@@ -44,7 +44,14 @@ class ReportSummaryCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(totalAmount, style: AppTypography.displayMedium),
+              Flexible(
+                child: Text(
+                    totalAmount,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.displayMedium,
+                  ),
+              ),
               const SizedBox(width: AppSpacing.md),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -71,8 +78,9 @@ class ReportSummaryCard extends StatelessWidget {
                     Text(
                       percentageChange,
                       style: AppTypography.labelSmall.copyWith(
-                        color:
-                            isPositive ? AppColors.income : AppColors.expense,
+                        color: isPositive
+                            ? AppColors.income
+                            : AppColors.expense,
                         fontWeight: AppTypography.semiBold,
                       ),
                     ),
