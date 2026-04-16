@@ -9,57 +9,6 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   const CategoryRepositoryImpl(this._localDatasource);
 
-  static const List<CategoryEntity> _defaultCategories = [
-    CategoryEntity(
-      id: 'expense_food',
-      name: 'Food',
-      type: TransactionType.expense,
-      colorValue: 0xFF10B981,
-      iconName: 'utensils',
-      isDefault: true,
-    ),
-    CategoryEntity(
-      id: 'expense_transport',
-      name: 'Transport',
-      type: TransactionType.expense,
-      colorValue: 0xFF3B82F6,
-      iconName: 'car',
-      isDefault: true,
-    ),
-    CategoryEntity(
-      id: 'expense_shopping',
-      name: 'Shopping',
-      type: TransactionType.expense,
-      colorValue: 0xFF8B5CF6,
-      iconName: 'shoppingBag',
-      isDefault: true,
-    ),
-    CategoryEntity(
-      id: 'expense_other',
-      name: 'Other',
-      type: TransactionType.expense,
-      colorValue: 0xFF64748B,
-      iconName: 'layoutGrid',
-      isDefault: true,
-    ),
-    CategoryEntity(
-      id: 'income_salary',
-      name: 'Salary',
-      type: TransactionType.income,
-      colorValue: 0xFF22C55E,
-      iconName: 'banknote',
-      isDefault: true,
-    ),
-    CategoryEntity(
-      id: 'income_freelance',
-      name: 'Freelance',
-      type: TransactionType.income,
-      colorValue: 0xFF14B8A6,
-      iconName: 'briefcase',
-      isDefault: true,
-    ),
-  ];
-
   @override
   Future<CategoryEntity> addCategory(CategoryEntity category) async {
     final model = CategoryMapper.toModel(category);
@@ -88,15 +37,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<List<CategoryEntity>> getCategories({TransactionType? type}) async {
-    var models = await _localDatasource.getCategories(type: type?.name);
-
-    if (models.isEmpty) {
-      for (final category in _defaultCategories) {
-        await _localDatasource.addCategory(CategoryMapper.toModel(category));
-      }
-      models = await _localDatasource.getCategories(type: type?.name);
-    }
-
+    final models = await _localDatasource.getCategories(type: type?.name);
     return models.map(CategoryMapper.toEntity).toList();
   }
 
