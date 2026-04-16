@@ -13,8 +13,7 @@ abstract final class MoneyFlowDateUtils {
   static String formatDayMonth(DateTime date) => _dayMonth.format(date);
 
   /// Returns `"d MMM yyyy"` — e.g. `"13 Apr 2026"`.
-  static String formatDayMonthYear(DateTime date) =>
-      _dayMonthYear.format(date);
+  static String formatDayMonthYear(DateTime date) => _dayMonthYear.format(date);
 
   /// Returns `"MMM yyyy"` — e.g. `"Apr 2026"`.
   static String formatMonthYear(DateTime date) => _monthYear.format(date);
@@ -63,5 +62,33 @@ abstract final class MoneyFlowDateUtils {
       final offset = count - 1 - i;
       return DateTime(pivot.year, pivot.month - offset);
     });
+  }
+
+  // Helper for month short names
+  static String monthShortName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months[month - 1];
+  }
+
+  // Helper for ISO week number
+  static int isoWeekNumber(DateTime date) {
+    final january4 = DateTime(date.year, 1, 4);
+    final diff = date.difference(
+      january4.subtract(Duration(days: january4.weekday - 1)),
+    );
+    return 1 + (diff.inDays ~/ 7);
   }
 }
