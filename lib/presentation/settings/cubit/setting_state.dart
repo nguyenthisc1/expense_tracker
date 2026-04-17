@@ -2,7 +2,7 @@ import 'package:expense_tracker/features/settings/domain/entity/setting_entity.d
 
 class SettingsState {
   final bool isLoading;
-  final AppSettingsEntity? settings;
+  final AppSettingsEntity settings;
   final String? errorMessage;
 
   const SettingsState({
@@ -14,7 +14,12 @@ class SettingsState {
   factory SettingsState.initial() {
     return const SettingsState(
       isLoading: false,
-      settings: null,
+      settings: AppSettingsEntity(
+        currencyCode: 'VND',
+        locale: 'vi_VN',
+        isDarkMode: false,
+        firstDayOfWeek: 1,
+      ),
       errorMessage: null,
     );
   }

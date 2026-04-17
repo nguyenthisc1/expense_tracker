@@ -1,4 +1,11 @@
+import 'package:expense_tracker/core/utils/extensions.dart';
+import 'package:expense_tracker/core/utils/currency_utils.dart';
+import 'package:expense_tracker/core/widgets/error_view.dart';
+import 'package:expense_tracker/core/widgets/loading_indicator.dart';
+import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
+import 'package:expense_tracker/presentation/settings/cubit/setting_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -17,174 +24,333 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _biometricEnabled = true;
+  // Removed local state, now settings handled via Cubit
+
+  // Currency, language, and theme options
+  final List<String> _currencies = ['USD', 'VND', 'EUR', 'GBP', 'JPY', 'INR'];
+
+  final List<String> _languages = [
+    'English',
+    'Vietnamese',
+    'Spanish',
+    'French',
+    'German',
+    'Chinese',
+  ];
+
+  final List<String> _themes = ['System', 'Light', 'Dark'];
+
+  void _showCurrencyDialog(SettingsState state, BuildContext context) async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Select Currency'),
+          children: [
+            ..._currencies.map(
+              (c) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, c),
+                child: Text(
+                  _currencyDisplay(c),
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: c == state.settings.currencyCode
+                        ? AppColors.primary
+                        : AppColors.textPrimaryLight,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (selected != null && selected != state.settings.currencyCode) {
+      context.read<SettingsCubit>().saveSettings(
+        state.settings.copyWith(currencyCode: selected),
+      );
+    }
+  }
+
+  void _showLanguageDialog(SettingsState state, BuildContext context) async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Select Language'),
+          children: [
+            ..._languages.map(
+              (l) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, l),
+                child: Text(
+                  l,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: l == state.settings.locale
+                        ? AppColors.primary
+                        : AppColors.textPrimaryLight,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (selected != null && selected != state.settings.locale) {
+      context.read<SettingsCubit>().saveSettings(
+        state.settings.copyWith(locale: selected),
+      );
+    }
+  }
+
+  void _showThemeDialog(SettingsState state, BuildContext context) async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Select Theme'),
+          children: [
+            ..._themes.map(
+              (t) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, t),
+                child: Row(
+                  children: [
+                    Text(
+                      t,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: t == state.settings.isDarkMode
+                            ? AppColors.primary
+                            : AppColors.textPrimaryLight,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    if (t == 'Light')
+                      const Icon(
+                        LucideIcons.sun,
+                        size: 18,
+                        color: AppColors.textSecondaryLight,
+                      ),
+                    if (t == 'Dark')
+                      const Icon(
+                        LucideIcons.moon,
+                        size: 18,
+                        color: AppColors.textSecondaryLight,
+                      ),
+                    if (t == 'System')
+                      const Icon(
+                        LucideIcons.smartphone,
+                        size: 18,
+                        color: AppColors.textSecondaryLight,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    // if (selected != null && selected != state.settings.isDarkMode) {
+    //   context.read<SettingsCubit>().saveSettings(
+    //     state.settings.copyWith(isDarkMode: selected ==),
+    //   );
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      appBar: MoneyFlowAppBar(
-        titleText: 'Settings',
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.pencil),
-            onPressed: () {},
+    return BlocConsumer<SettingsCubit, SettingsState>(
+      listener: (BuildContext context, state) {
+        if (state.errorMessage != null) {
+          context.showSnackBar(state.errorMessage!, isError: true);
+        }
+      },
+      builder: (BuildContext context, state) {
+        if (state.isLoading) {
+          return const LoadingIndicator(message: 'Loading Infomation...');
+        }
+
+        if (state.errorMessage != null) {
+          return ErrorView(
+            message: state.errorMessage,
+            // onRetry: _reloadTransactions,
+          );
+        }
+
+        return AppScaffold(
+          appBar: MoneyFlowAppBar(
+            titleText: 'Settings',
+            // actions: [
+            //   IconButton(
+            //     icon: const Icon(LucideIcons.pencil),
+            //     onPressed: () {},
+            //   ),
+            // ],
           ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.base,
-          vertical: AppSpacing.base,
-        ),
-        children: [
-          _ProfileHeader(),
-          const SizedBox(height: AppSpacing.base),
-          _SettingsSection(
-            title: 'GENERAL',
-            tiles: [
-              SettingsTile(
-                icon: LucideIcons.banknote,
-                title: 'Currency',
-                trailing: _NavTrailing(value: 'USD (\$)'),
-                onTap: () {},
+          body: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.base,
+              vertical: AppSpacing.base,
+            ),
+            children: [
+              // _ProfileHeader(),
+              const SizedBox(height: AppSpacing.base),
+              _SettingsSection(
+                title: 'GENERAL',
+                tiles: [
+                  SettingsTile(
+                    icon: LucideIcons.banknote,
+                    title: 'Currency',
+                    trailing: _NavTrailing(
+                      value: _currencyDisplay(state.settings.currencyCode),
+                    ),
+                    onTap: () => _showCurrencyDialog(state, context),
+                  ),
+                  SettingsTile(
+                    icon: LucideIcons.globe,
+                    title: 'Language',
+                    trailing: _NavTrailing(value: state.settings.locale),
+                    onTap: () => _showLanguageDialog(state, context),
+                  ),
+                  // SettingsTile(
+                  //   icon: LucideIcons.moon,
+                  //   title: 'Theme (Dark/Light)',
+                  //   trailing: _NavTrailing(value: state.selectedTheme),
+                  //   onTap: () => _showThemeDialog(state, context),
+                  // ),
+                ],
               ),
-              SettingsTile(
-                icon: LucideIcons.globe,
-                title: 'Language',
-                trailing: _NavTrailing(value: 'English'),
-                onTap: () {},
+              const SizedBox(height: AppSpacing.md),
+              _SettingsSection(
+                title: 'SECURITY',
+                tiles: [
+                  // SettingsTile(
+                  //   icon: LucideIcons.fingerprintPattern,
+                  //   title: 'Biometric Lock',
+                  //   trailing: Switch(
+                  //     value: state.biometricEnabled,
+                  //     onChanged: (v) => context
+                  //         .read<SettingsCubit>()
+                  //         .saveSetting(biometricEnabled: v),
+                  //     activeThumbColor: AppColors.primary,
+                  //   ),
+                  // ),
+                  SettingsTile(
+                    icon: LucideIcons.keyRound,
+                    title: 'Change PIN',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                ],
               ),
-              SettingsTile(
-                icon: LucideIcons.moon,
-                title: 'Theme',
-                trailing: _NavTrailing(value: 'System'),
-                onTap: () {},
+              const SizedBox(height: AppSpacing.md),
+              _SettingsSection(
+                title: 'NOTIFICATIONS',
+                tiles: [
+                  SettingsTile(
+                    icon: LucideIcons.bell,
+                    title: 'Daily Reminders',
+                    subtitle: 'Morning summary',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                  SettingsTile(
+                    icon: LucideIcons.triangleAlert,
+                    title: 'Budget Alerts',
+                    subtitle: 'At 80% limit',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                ],
               ),
+              const SizedBox(height: AppSpacing.md),
+              _SettingsSection(
+                title: 'DATA & PRIVACY',
+                tiles: [
+                  SettingsTile(
+                    icon: LucideIcons.download,
+                    title: 'Export Data (CSV/PDF)',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                  SettingsTile(
+                    icon: LucideIcons.trash2,
+                    title: 'Clear All Data',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                  SettingsTile(
+                    icon: LucideIcons.shieldCheck,
+                    title: 'Privacy Policy',
+                    trailing: const Icon(
+                      LucideIcons.externalLink,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _SettingsSection(
+                title: 'SUPPORT',
+                tiles: [
+                  SettingsTile(
+                    icon: LucideIcons.badgeQuestionMark,
+                    title: 'Help Center',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                  SettingsTile(
+                    icon: LucideIcons.star,
+                    title: 'Rate the App',
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: AppColors.textSecondaryLight,
+                    ),
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              _LogoutButton(),
+              const SizedBox(height: AppSpacing.xl),
+              _AppFooter(),
+              const SizedBox(height: AppSpacing.xl2),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          _SettingsSection(
-            title: 'SECURITY',
-            tiles: [
-              SettingsTile(
-                icon: LucideIcons.fingerprintPattern,
-                title: 'Biometric Lock',
-                trailing: Switch(
-                  value: _biometricEnabled,
-                  onChanged: (v) => setState(() => _biometricEnabled = v),
-                  activeThumbColor: AppColors.primary,
-                ),
-              ),
-              SettingsTile(
-                icon: LucideIcons.keyRound,
-                title: 'Change PIN',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _SettingsSection(
-            title: 'NOTIFICATIONS',
-            tiles: [
-              SettingsTile(
-                icon: LucideIcons.bell,
-                title: 'Daily Reminders',
-                subtitle: 'Morning summary',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-              SettingsTile(
-                icon: LucideIcons.triangleAlert,
-                title: 'Budget Alerts',
-                subtitle: 'At 80% limit',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _SettingsSection(
-            title: 'DATA & PRIVACY',
-            tiles: [
-              SettingsTile(
-                icon: LucideIcons.download,
-                title: 'Export Data (CSV/PDF)',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-              SettingsTile(
-                icon: LucideIcons.trash2,
-                title: 'Clear All Data',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-              SettingsTile(
-                icon: LucideIcons.shieldCheck,
-                title: 'Privacy Policy',
-                trailing: const Icon(
-                  LucideIcons.externalLink,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _SettingsSection(
-            title: 'SUPPORT',
-            tiles: [
-              SettingsTile(
-                icon: LucideIcons.badgeQuestionMark,
-                title: 'Help Center',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-              SettingsTile(
-                icon: LucideIcons.star,
-                title: 'Rate the App',
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
-                  size: 18,
-                  color: AppColors.textSecondaryLight,
-                ),
-                onTap: () {},
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          _LogoutButton(),
-          const SizedBox(height: AppSpacing.xl),
-          _AppFooter(),
-          const SizedBox(height: AppSpacing.xl2),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  String _currencyDisplay(String currencyCode) {
+    final symbol = CurrencyUtils.symbolForCurrency(currencyCode);
+    return '$currencyCode ($symbol)';
   }
 }
 
