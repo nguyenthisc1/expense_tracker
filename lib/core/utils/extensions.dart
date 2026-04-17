@@ -1,4 +1,8 @@
+import 'package:expense_tracker/core/constants/app_currency_config.dart';
 import 'package:flutter/material.dart';
+import 'package:expense_tracker/core/utils/currency_utils.dart';
+import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Dart and Flutter extensions used across MoneyFlow.
 
@@ -25,10 +29,52 @@ extension ContextX on BuildContext {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor:
-              isError ? Theme.of(this).colorScheme.error : null,
+          backgroundColor: isError ? Theme.of(this).colorScheme.error : null,
         ),
       );
+  }
+
+  /// Returns current currency code from settings.
+  String get currencyCode {
+    final state = watch<SettingsCubit>().state;
+    return state.settings.currencyCode;
+  }
+
+  /// Formats the amount as money based on the selected currency setting.
+  String formatMoney(double amount, {bool showSign = false}) {
+    final state = watch<SettingsCubit>().state;
+    final converted = CurrencyUtils.convert(
+      amount,
+      fromCurrency: AppCurrencyConfig.baseCurrencyCode,
+      toCurrency: state.settings.currencyCode,
+    );
+    return CurrencyUtils.format(
+      converted,
+      currencyCode: state.settings.currencyCode,
+      showSign: showSign,
+    );
+  }
+
+  /// Formats amount as a compact money string, converting from VND if needed.
+  String formatCompactMoney(double amount) {
+    final state = watch<SettingsCubit>().state;
+    final currency = state.settings.currencyCode;
+    final converted = CurrencyUtils.convert(
+      amount,
+      fromCurrency: AppCurrencyConfig.baseCurrencyCode,
+      toCurrency: currency,
+    );
+    return CurrencyUtils.formatCompact(converted, currencyCode: currency);
+  }
+
+  /// Returns the currently selected display amount converted from base VND.
+  double convertMoney(double amount) {
+    final state = watch<SettingsCubit>().state;
+    return CurrencyUtils.convert(
+      amount,
+      fromCurrency: AppCurrencyConfig.baseCurrencyCode,
+      toCurrency: state.settings.currencyCode,
+    );
   }
 }
 
@@ -53,8 +99,7 @@ extension DateTimeX on DateTime {
       year == other.year && month == other.month && day == other.day;
 
   DateTime get startOfDay => DateTime(year, month, day);
-  DateTime get endOfDay =>
-      DateTime(year, month, day, 23, 59, 59, 999);
+  DateTime get endOfDay => DateTime(year, month, day, 23, 59, 59, 999);
 
   DateTime get startOfMonth => DateTime(year, month);
   DateTime get endOfMonth =>
@@ -82,9 +127,11 @@ extension StringX on String {
       isEmpty ? this : '${this[0].toUpperCase()}${substring(1)}';
 
   String get titleCase => split(' ')
-      .map((word) => word.isEmpty
-          ? word
-          : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}')
+      .map(
+        (word) => word.isEmpty
+            ? word
+            : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
+      )
       .join(' ');
 
   bool get isBlank => trim().isEmpty;

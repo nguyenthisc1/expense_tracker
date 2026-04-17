@@ -333,7 +333,7 @@ class _TransactionGroup extends StatelessWidget {
                 subtitle: item.subtitle,
                 icon: item.icon,
                 iconColor: item.iconColor,
-                amount: CurrencyUtils.format(item.transaction.amount),
+                amount: context.formatMoney(item.transaction.amount),
                 isIncome: item.transaction.type == TransactionType.income,
               ),
             ),

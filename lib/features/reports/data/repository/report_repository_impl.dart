@@ -87,6 +87,8 @@ class ReportRepositoryImpl implements ReportRepository {
         categoryName: category.name,
         totalAmount: entry.value,
         colorValue: category.colorValue,
+        type: category.type,
+        iconName: category.iconName,
       );
     }).toList();
 
@@ -200,6 +202,8 @@ class ReportRepositoryImpl implements ReportRepository {
             categoryName: category.name,
             totalAmount: entry.value,
             colorValue: category.colorValue,
+            type: category.type,
+            iconName: category.iconName,
           );
         })
         .whereType<CategoryExpenseSummaryEntity>()

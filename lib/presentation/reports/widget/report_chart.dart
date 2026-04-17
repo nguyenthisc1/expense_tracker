@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -181,7 +182,7 @@ class _ReportChartState extends State<ReportChart> {
               final isIncome = args.seriesIndex == 0;
               final value = isIncome ? point.income : point.expense;
               args.text =
-                  '${point.xLabel}\n${isIncome ? 'Income' : 'Expense'}: ${CurrencyUtils.format(value)}';
+                  '${point.xLabel}\n${isIncome ? 'Income' : 'Expense'}: ${context.formatMoney(value)}';
             },
           ),
         ),

@@ -1,5 +1,7 @@
 import 'package:expense_tracker/core/seed/seed_runner.dart';
+import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/injection.dart';
 import 'core/theme/app_theme.dart';
@@ -17,13 +19,21 @@ class MoneyFlowApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'MoneyFlow',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      routerConfig: AppPages.router,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SettingsCubit>(
+          create: (_) => sl<SettingsCubit>()..loadSettings(),
+        ),
+      ],
+
+      child: MaterialApp.router(
+        title: 'MoneyFlow',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: ThemeMode.system,
+        routerConfig: AppPages.router,
+      ),
     );
   }
 }
