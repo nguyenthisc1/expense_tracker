@@ -4,12 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_radius.dart';
 import '../../../core/constants/app_spacing.dart';
-import '../../../core/constants/app_typography.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/entity/transaction_type.dart';
-import '../../../core/utils/currency_utils.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/extensions.dart';
 import '../../../core/widgets/app_scaffold.dart';
@@ -23,7 +20,9 @@ import '../../../routes/app_routes.dart';
 import '../bloc/transaction_bloc.dart';
 import '../bloc/transaction_event.dart';
 import '../bloc/transaction_state.dart';
-import '../widget/transaction_list_item.dart';
+import '../widget/transaction_filter_row.dart';
+import '../widget/transaction_group_section.dart';
+import '../widget/transaction_view_data.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
@@ -96,12 +95,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: MoneyFlowAppBar(
-        titleText: 'History',
+        titleText: 'Transactions',
         actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.search),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(LucideIcons.search), onPressed: () {}),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -122,10 +118,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
           }
 
           if (_categoryError != null && state.transactions.isEmpty) {
-            return ErrorView(
-              message: _categoryError,
-              onRetry: _loadCategories,
-            );
+            return ErrorView(message: _categoryError, onRetry: _loadCategories);
           }
 
           if (state.isLoading && state.transactions.isEmpty) {
@@ -143,7 +136,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
           return Column(
             children: [
-              _FilterRow(
+              TransactionFilterRow(
                 filters: _filters,
                 selected: _selectedFilter,
                 onSelected: (index) {
@@ -158,9 +151,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
                         subtitle:
                             'Start by adding your first income or expense entry.',
                         actionLabel: 'Add transaction',
-                        onAction: () => _openTransactionForm(
-                          AppRoutes.addTransaction,
-                        ),
+                        onAction: () =>
+                            _openTransactionForm(AppRoutes.addTransaction),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(
@@ -170,7 +162,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                         itemCount: groups.length,
                         itemBuilder: (context, groupIndex) {
                           final group = groups[groupIndex];
-                          return _TransactionGroup(
+                          return TransactionGroupSection(
                             group: group,
                             onTapTransaction: (transaction) {
                               _openTransactionForm(
@@ -188,7 +180,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
   }
 
-  List<_DateGroup> _groupTransactions(List<TransactionEntity> transactions) {
+  List<TransactionDateGroup> _groupTransactions(
+    List<TransactionEntity> transactions,
+  ) {
     final grouped = <DateTime, List<TransactionEntity>>{};
 
     for (final transaction in transactions) {
@@ -200,202 +194,24 @@ class _TransactionsPageState extends State<TransactionsPage> {
       grouped.putIfAbsent(key, () => []).add(transaction);
     }
 
-    final sortedDates = grouped.keys.toList()
-      ..sort((a, b) => b.compareTo(a));
+    final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     return sortedDates.map((date) {
       final items = grouped[date] ?? const [];
-      return _DateGroup(
+      return TransactionDateGroup(
         date: MoneyFlowDateUtils.formatRelative(date),
         dateLabel: MoneyFlowDateUtils.formatDayMonthYear(date),
         items: items
-            .map((transaction) => _TransactionViewData(
-                  transaction: transaction,
-                  category: _categories.firstWhereOrNull(
-                    (category) => category.id == transaction.categoryId,
-                  ),
-                ))
+            .map(
+              (transaction) => TransactionViewData(
+                transaction: transaction,
+                category: _categories.firstWhereOrNull(
+                  (category) => category.id == transaction.categoryId,
+                ),
+              ),
+            )
             .toList(),
       );
     }).toList();
   }
-}
-
-class _FilterRow extends StatelessWidget {
-  const _FilterRow({
-    required this.filters,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final List<String> filters;
-  final int selected;
-  final ValueChanged<int> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.base,
-          vertical: AppSpacing.sm,
-        ),
-        scrollDirection: Axis.horizontal,
-        itemCount: filters.length,
-        separatorBuilder: (context, index) =>
-            const SizedBox(width: AppSpacing.sm),
-        itemBuilder: (context, index) {
-          final isSelected = selected == index;
-          final isLast = index == filters.length - 1;
-          return GestureDetector(
-            onTap: () => onSelected(index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.base,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.surfaceLight,
-                borderRadius: AppRadius.radiusFull,
-                border: isSelected
-                    ? null
-                    : Border.all(color: AppColors.borderLight),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    filters[index],
-                    style: AppTypography.labelMedium.copyWith(
-                      color: isSelected
-                          ? AppColors.onPrimary
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ),
-                  if (isLast) ...[
-                    const SizedBox(width: AppSpacing.xs),
-                    Icon(
-                      LucideIcons.chevronDown,
-                      size: 14,
-                      color: isSelected
-                          ? AppColors.onPrimary
-                          : AppColors.textSecondaryLight,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _TransactionGroup extends StatelessWidget {
-  const _TransactionGroup({
-    required this.group,
-    required this.onTapTransaction,
-  });
-
-  final _DateGroup group;
-  final ValueChanged<TransactionEntity> onTapTransaction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            top: AppSpacing.base,
-            bottom: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              Text(group.date, style: AppTypography.headlineSmall),
-              const SizedBox(width: AppSpacing.sm),
-              Text(group.dateLabel, style: AppTypography.labelSmall),
-            ],
-          ),
-        ),
-        // ...List.generate(group.items.length, (index) {
-        //   final item = group.items[index];
-        //   return Padding(
-        //     padding: EdgeInsets.only(
-        //       bottom: index < group.items.length - 1 ? AppSpacing.sm : 0,
-        //     ),
-        //     child: GestureDetector(
-        //       onTap: () => onTapTransaction(item.transaction),
-        //       child: TransactionListItem(
-        //         title: item.transaction.title,
-        //         subtitle: item.subtitle,
-        //         icon: item.icon,
-        //         iconColor: item.iconColor,
-        //         amount: context.formatMoney(item.transaction.amount),
-        //         isIncome: item.transaction.type == TransactionType.income,
-        //       ),
-        //     ),
-        //   );
-        // }),
-        const SizedBox(height: AppSpacing.base),
-      ],
-    );
-  }
-}
-
-class _DateGroup {
-  const _DateGroup({
-    required this.date,
-    required this.dateLabel,
-    required this.items,
-  });
-
-  final String date;
-  final String dateLabel;
-  final List<_TransactionViewData> items;
-}
-
-class _TransactionViewData {
-  const _TransactionViewData({
-    required this.transaction,
-    required this.category,
-  });
-
-  final TransactionEntity transaction;
-  final CategoryEntity? category;
-
-  String get subtitle {
-    final categoryName = category?.name ?? 'Uncategorized';
-    final time = MoneyFlowDateUtils.formatTime(transaction.date);
-    return '$categoryName • $time';
-  }
-
-  IconData get icon {
-    switch (category?.iconName) {
-      case 'utensils':
-        return LucideIcons.utensils;
-      case 'car':
-        return LucideIcons.car;
-      case 'shoppingBag':
-        return LucideIcons.shoppingBag;
-      case 'banknote':
-        return LucideIcons.banknote;
-      case 'briefcase':
-        return LucideIcons.briefcase;
-      case 'layoutGrid':
-        return LucideIcons.layoutGrid;
-      default:
-        return transaction.type == TransactionType.income
-            ? LucideIcons.banknote
-            : LucideIcons.receipt;
-    }
-  }
-
-  Color get iconColor => category != null
-      ? Color(category!.colorValue)
-      : transaction.type == TransactionType.income
-          ? AppColors.income
-          : AppColors.expense;
 }

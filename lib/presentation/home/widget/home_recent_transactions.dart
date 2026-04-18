@@ -5,6 +5,7 @@ import 'package:expense_tracker/presentation/home/cubit/home_cubit.dart';
 import 'package:expense_tracker/presentation/home/cubit/home_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -13,6 +14,7 @@ import '../../../core/constants/app_radius.dart';
 import '../../../core/constants/app_shadows.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../routes/app_routes.dart';
 
 class HomeRecentTransactions extends StatelessWidget {
   const HomeRecentTransactions({super.key});
@@ -28,7 +30,10 @@ class HomeRecentTransactions extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Recent Transactions', style: AppTypography.titleMedium),
-                TextButton(onPressed: () {}, child: const Text('View All')),
+                TextButton(
+                  onPressed: () => context.go(AppRoutes.transactions),
+                  child: const Text('View All'),
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
