@@ -62,4 +62,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
     return CategoryMapper.toEntity(updated);
   }
+
+  @override
+  Future<List<CategoryEntity>> getAllCategories({TransactionType? type}) async {
+    final models = await _localDatasource.getAllCategories();
+    return models.map(CategoryMapper.toEntity).toList();
+  }
 }

@@ -2,6 +2,7 @@ import 'package:expense_tracker/features/categories/data/model/category_model.da
 
 abstract interface class CategoryLocalDatasource {
   Future<List<CategoryModel>> getCategories({String? type});
+  Future<List<CategoryModel>> getAllCategories();
 
   Future<CategoryModel?> getCategoryById(String id);
 

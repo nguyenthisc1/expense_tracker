@@ -1,6 +1,8 @@
 import 'package:expense_tracker/core/seed/app_seed_service.dart';
+import 'package:expense_tracker/features/categories/domain/usecase/get_all_categories_usecase.dart';
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
 import 'package:expense_tracker/features/reports/domain/usecase/get_detailed_report_usecase.dart';
+import 'package:expense_tracker/presentation/categories/cubit/categories_cubit.dart';
 import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
@@ -134,6 +136,9 @@ void _registerUseCases() {
     () => GetCategoriesUsecase(sl<CategoryRepository>()),
   );
   sl.registerLazySingleton(
+    () => GetAllCategoriesUsecase(sl<CategoryRepository>()),
+  );
+  sl.registerLazySingleton(
     () => GetCategoryByIdUsecase(sl<CategoryRepository>()),
   );
   sl.registerLazySingleton(() => AddCategoryUsecase(sl<CategoryRepository>()));
@@ -210,6 +215,13 @@ void _registerPresentation() {
     () => SettingsCubit(
       getSettingsUsecase: sl<GetSettingsUsecase>(),
       updateSettingsUsecase: sl<UpdateSettingsUsecase>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => CategoriesCubit(
+      getAllCategoriesUsecase: sl<GetAllCategoriesUsecase>(),
+      getCategoryByIdUsecase: sl<GetCategoryByIdUsecase>(),
     ),
   );
 }

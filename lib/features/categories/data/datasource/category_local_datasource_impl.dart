@@ -86,4 +86,15 @@ class CategoryLocalDatasourceImpl implements CategoryLocalDatasource {
 
     return transaction != null;
   }
+
+  @override
+  Future<List<CategoryModel>> getAllCategories({String? type}) async {
+    final items = await _isar.categoryModels.where().findAll();
+
+    if (type == null) {
+      return items;
+    }
+
+    return items.toList();
+  }
 }

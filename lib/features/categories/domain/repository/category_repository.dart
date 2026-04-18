@@ -3,6 +3,7 @@ import 'package:expense_tracker/features/categories/domain/entity/category_entit
 
 abstract interface class CategoryRepository {
   Future<List<CategoryEntity>> getCategories({TransactionType? type});
+  Future<List<CategoryEntity>> getAllCategories();
 
   Future<CategoryEntity?> getCategoryById(String id);
 

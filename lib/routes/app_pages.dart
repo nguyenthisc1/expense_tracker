@@ -1,3 +1,4 @@
+import 'package:expense_tracker/presentation/categories/cubit/categories_cubit.dart';
 import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,8 +109,12 @@ final class AppPages {
           // ----------------------------------------------------------------
           GoRoute(
             path: AppRoutes.categories,
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: CategoriesPage()),
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: BlocProvider(
+                create: (context) => sl<CategoriesCubit>()..loadCategories(),
+                child: CategoriesPage(),
+              ),
+            ),
             routes: [
               GoRoute(
                 path: 'add',
