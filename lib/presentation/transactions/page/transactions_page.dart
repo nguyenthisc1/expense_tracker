@@ -320,25 +320,25 @@ class _TransactionGroup extends StatelessWidget {
             ],
           ),
         ),
-        ...List.generate(group.items.length, (index) {
-          final item = group.items[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: index < group.items.length - 1 ? AppSpacing.sm : 0,
-            ),
-            child: GestureDetector(
-              onTap: () => onTapTransaction(item.transaction),
-              child: TransactionListItem(
-                title: item.transaction.title,
-                subtitle: item.subtitle,
-                icon: item.icon,
-                iconColor: item.iconColor,
-                amount: context.formatMoney(item.transaction.amount),
-                isIncome: item.transaction.type == TransactionType.income,
-              ),
-            ),
-          );
-        }),
+        // ...List.generate(group.items.length, (index) {
+        //   final item = group.items[index];
+        //   return Padding(
+        //     padding: EdgeInsets.only(
+        //       bottom: index < group.items.length - 1 ? AppSpacing.sm : 0,
+        //     ),
+        //     child: GestureDetector(
+        //       onTap: () => onTapTransaction(item.transaction),
+        //       child: TransactionListItem(
+        //         title: item.transaction.title,
+        //         subtitle: item.subtitle,
+        //         icon: item.icon,
+        //         iconColor: item.iconColor,
+        //         amount: context.formatMoney(item.transaction.amount),
+        //         isIncome: item.transaction.type == TransactionType.income,
+        //       ),
+        //     ),
+        //   );
+        // }),
         const SizedBox(height: AppSpacing.base),
       ],
     );

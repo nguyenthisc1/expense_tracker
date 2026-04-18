@@ -3,6 +3,7 @@ import 'package:expense_tracker/features/categories/domain/usecase/get_all_categ
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
 import 'package:expense_tracker/features/reports/domain/usecase/get_detailed_report_usecase.dart';
 import 'package:expense_tracker/presentation/categories/cubit/categories_cubit.dart';
+import 'package:expense_tracker/presentation/home/cubit/home_cubit.dart';
 import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
@@ -222,6 +223,13 @@ void _registerPresentation() {
     () => CategoriesCubit(
       getAllCategoriesUsecase: sl<GetAllCategoriesUsecase>(),
       getCategoryByIdUsecase: sl<GetCategoryByIdUsecase>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => HomeCubit(
+      getDetailedReportUsecase: sl<GetDetailedReportUsecase>(),
+      getTransactionsUsecase: sl<GetTransactionsUsecase>(),
     ),
   );
 }

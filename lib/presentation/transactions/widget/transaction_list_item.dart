@@ -1,3 +1,7 @@
+import 'package:expense_tracker/core/entity/transaction_type.dart';
+import 'package:expense_tracker/core/utils/extensions.dart';
+import 'package:expense_tracker/core/utils/icon_utils.dart';
+import 'package:expense_tracker/features/reports/domain/entity/category_expense_summary_entity.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -8,22 +12,9 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 
 class TransactionListItem extends StatelessWidget {
-  const TransactionListItem({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.iconColor,
-    required this.amount,
-    required this.isIncome,
-  });
+  const TransactionListItem({super.key, required this.data});
 
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color iconColor;
-  final String amount;
-  final bool isIncome;
+  final CategoryExpenseSummaryEntity data;
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +31,13 @@ class TransactionListItem extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: iconColor.withValues(alpha: 0.15),
+            backgroundColor: Color(data.colorValue).withValues(alpha: 0.15),
             radius: AppIcons.listTile / 2,
-            child: Icon(icon, size: AppIcons.md, color: iconColor),
+            child: Icon(
+              IconUtils.fromName(data.iconName),
+              size: AppIcons.md,
+              color: Color(data.colorValue),
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -50,15 +45,8 @@ class TransactionListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  data.categoryName,
                   style: AppTypography.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTypography.labelSmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -67,9 +55,11 @@ class TransactionListItem extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.md),
           Text(
-            isIncome ? '+$amount' : '-$amount',
+            '${data.type == TransactionType.income ? '+' : "-"}${context.formatMoney(data.totalAmount)}',
             style: AppTypography.amountSmall.copyWith(
-              color: isIncome ? AppColors.income : AppColors.expense,
+              color: data.type == TransactionType.income
+                  ? AppColors.income
+                  : AppColors.expense,
               fontWeight: AppTypography.semiBold,
             ),
           ),
