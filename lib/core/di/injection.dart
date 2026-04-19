@@ -1,13 +1,24 @@
 import 'package:expense_tracker/core/seed/app_seed_service.dart';
+import 'package:expense_tracker/features/app_lock/data/datasource/app_lock_local_datasource.dart';
+import 'package:expense_tracker/features/app_lock/data/datasource/app_lock_local_datasource_impl.dart';
+import 'package:expense_tracker/features/app_lock/data/repository/app_lock_repository_impl.dart';
+import 'package:expense_tracker/features/app_lock/domain/repository/app_lock_repository.dart';
+import 'package:expense_tracker/features/app_lock/domain/usecase/change_pin_lock_usecase%20copy.dart';
+import 'package:expense_tracker/features/app_lock/domain/usecase/disable_pin_lock_usecase.dart';
+import 'package:expense_tracker/features/app_lock/domain/usecase/enable_pin_lock_usecase.dart';
+import 'package:expense_tracker/features/app_lock/domain/usecase/get_app_lock_setting_usecase.dart';
+import 'package:expense_tracker/features/app_lock/domain/usecase/verify_pin_lock_usecase.dart';
 import 'package:expense_tracker/features/categories/domain/usecase/get_all_categories_usecase.dart';
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
 import 'package:expense_tracker/features/reports/domain/usecase/get_detailed_report_usecase.dart';
+import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/categories/cubit/categories_cubit.dart';
 import 'package:expense_tracker/presentation/home/cubit/home_cubit.dart';
+import 'package:expense_tracker/presentation/pin_lock/cubit/app_pin_lock_setting_cubit.dart';
 import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
-import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
 import 'package:expense_tracker/presentation/transactions/bloc/transaction_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -98,6 +109,12 @@ void _registerDataSources() {
   sl.registerLazySingleton<SettingsLocalDatasource>(
     () => SettingsLocalDatasourceImpl(sl<Isar>()),
   );
+
+  sl.registerLazySingleton<AppLockLocalDatasource>(
+    () => AppLockLocalDatasourceImpl(
+      FlutterSecureStorage(aOptions: AndroidOptions(), iOptions: IOSOptions()),
+    ),
+  );
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -124,6 +141,10 @@ void _registerRepositories() {
       sl<CategoryLocalDatasource>(),
       sl<TransactionLocalDatasource>(),
     ),
+  );
+
+  sl.registerLazySingleton<AppLockRepository>(
+    () => AppLockRepositoryImpl(sl<AppLockLocalDatasource>()),
   );
 }
 
@@ -189,6 +210,17 @@ void _registerUseCases() {
   sl.registerLazySingleton(
     () => UpdateSettingsUsecase(sl<SettingsRepository>()),
   );
+
+  // ── App lock ───────────────────────────────────────────────────────────────
+  sl.registerLazySingleton(() => ChangePinLockUsecase(sl<AppLockRepository>()));
+  sl.registerLazySingleton(
+    () => GetAppLockSettingsUsecase(sl<AppLockRepository>()),
+  );
+  sl.registerLazySingleton(() => EnablePinLockUsecase(sl<AppLockRepository>()));
+  sl.registerLazySingleton(
+    () => DisablePinLockUsecase(sl<AppLockRepository>()),
+  );
+  sl.registerLazySingleton(() => VerifyPinLockUsecase(sl<AppLockRepository>()));
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -230,6 +262,14 @@ void _registerPresentation() {
     () => HomeCubit(
       getDetailedReportUsecase: sl<GetDetailedReportUsecase>(),
       getTransactionsUsecase: sl<GetTransactionsUsecase>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => AppPinLockSettingCubit(
+      enablePinLockUsecase: sl<EnablePinLockUsecase>(),
+      disablePinLockUsecase: sl<DisablePinLockUsecase>(),
+      getAppLockSettingsUsecase: sl<GetAppLockSettingsUsecase>(),
     ),
   );
 }
