@@ -3,7 +3,7 @@ import 'package:expense_tracker/features/app_lock/data/datasource/app_lock_local
 import 'package:expense_tracker/features/app_lock/data/datasource/app_lock_local_datasource_impl.dart';
 import 'package:expense_tracker/features/app_lock/data/repository/app_lock_repository_impl.dart';
 import 'package:expense_tracker/features/app_lock/domain/repository/app_lock_repository.dart';
-import 'package:expense_tracker/features/app_lock/domain/usecase/change_pin_lock_usecase%20copy.dart';
+import 'package:expense_tracker/features/app_lock/domain/usecase/change_pin_lock_usecase.dart';
 import 'package:expense_tracker/features/app_lock/domain/usecase/disable_pin_lock_usecase.dart';
 import 'package:expense_tracker/features/app_lock/domain/usecase/enable_pin_lock_usecase.dart';
 import 'package:expense_tracker/features/app_lock/domain/usecase/get_app_lock_setting_usecase.dart';
@@ -14,7 +14,9 @@ import 'package:expense_tracker/features/reports/domain/usecase/get_detailed_rep
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/categories/cubit/categories_cubit.dart';
 import 'package:expense_tracker/presentation/home/cubit/home_cubit.dart';
+import 'package:expense_tracker/presentation/pin_lock/cubit/app_lock_cubit.dart';
 import 'package:expense_tracker/presentation/pin_lock/cubit/app_pin_lock_setting_cubit.dart';
+import 'package:expense_tracker/presentation/pin_lock/cubit/pin_entry_cubit.dart';
 import 'package:expense_tracker/presentation/reports/cubit/report_cubit.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
 import 'package:expense_tracker/presentation/transactions/bloc/transaction_bloc.dart';
@@ -72,6 +74,7 @@ final GetIt sl = GetIt.instance;
 ///   BlocProvider so each page gets a fresh instance
 Future<void> configureDependencies() async {
   await _registerIsar();
+  _registerSecureStorage();
   _registerDataSources();
   _registerRepositories();
   _registerUseCases();
@@ -80,7 +83,7 @@ Future<void> configureDependencies() async {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// Isar
+// local storage
 // ────────────────────────────────────────────────────────────────────────────
 
 Future<void> _registerIsar() async {
@@ -91,6 +94,15 @@ Future<void> _registerIsar() async {
     AppSettingsModelSchema,
   ], directory: dir.path);
   sl.registerSingleton<Isar>(isar);
+}
+
+void _registerSecureStorage() {
+  sl.registerLazySingleton<FlutterSecureStorage>(
+    () => const FlutterSecureStorage(
+      aOptions: AndroidOptions(),
+      iOptions: IOSOptions(),
+    ),
+  );
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -111,9 +123,7 @@ void _registerDataSources() {
   );
 
   sl.registerLazySingleton<AppLockLocalDatasource>(
-    () => AppLockLocalDatasourceImpl(
-      FlutterSecureStorage(aOptions: AndroidOptions(), iOptions: IOSOptions()),
-    ),
+    () => AppLockLocalDatasourceImpl(sl<FlutterSecureStorage>()),
   );
 }
 
@@ -270,8 +280,19 @@ void _registerPresentation() {
       enablePinLockUsecase: sl<EnablePinLockUsecase>(),
       disablePinLockUsecase: sl<DisablePinLockUsecase>(),
       getAppLockSettingsUsecase: sl<GetAppLockSettingsUsecase>(),
+      changePinLockUsecase: sl<ChangePinLockUsecase>(),
+      verifyPinLockUsecase: sl<VerifyPinLockUsecase>(),
     ),
   );
+
+  sl.registerFactory(
+    () => AppLockCubit(
+      getAppLockSettingsUsecase: sl<GetAppLockSettingsUsecase>(),
+      verifyPinLockUsecase: sl<VerifyPinLockUsecase>(),
+    ),
+  );
+
+  sl.registerFactory(() => PinEntryCubit());
 }
 
 // ────────────────────────────────────────────────────────────────────────────

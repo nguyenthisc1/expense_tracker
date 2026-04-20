@@ -59,4 +59,12 @@ abstract final class AppRoutes {
   // ---------------------------------------------------------------------------
 
   static const String settings = '/settings';
+
+  // ---------------------------------------------------------------------------
+  // Pin
+  // ---------------------------------------------------------------------------
+
+  static const String pinLock = '/pin-lock';
+  static const String changePin = '/settings/change-pin';
+  static const String pin = '/settings/pin';
 }

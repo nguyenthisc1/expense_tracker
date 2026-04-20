@@ -6,7 +6,7 @@ class VerifyPinLockUsecase {
 
   const VerifyPinLockUsecase(this._appLockRepository);
 
-  Future<void> call(String pin) {
+  Future<bool> call(String pin) {
     if (pin.trim().isEmpty) {
       throw const ValidationException('Pin is required.');
     }

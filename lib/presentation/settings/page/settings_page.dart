@@ -4,8 +4,10 @@ import 'package:expense_tracker/core/widgets/error_view.dart';
 import 'package:expense_tracker/core/widgets/loading_indicator.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_state.dart';
+import 'package:expense_tracker/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -236,13 +238,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   // ),
                   SettingsTile(
                     icon: LucideIcons.keyRound,
-                    title: 'Change PIN',
+                    title: 'PIN',
                     trailing: const Icon(
                       LucideIcons.chevronRight,
                       size: 18,
                       color: AppColors.textSecondaryLight,
                     ),
-                    onTap: () {},
+                    onTap: () => context.push(AppRoutes.pin),
                   ),
                 ],
               ),
@@ -298,49 +300,49 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     onTap: () {},
                   ),
-                  SettingsTile(
-                    icon: LucideIcons.shieldCheck,
-                    title: 'Privacy Policy',
-                    trailing: const Icon(
-                      LucideIcons.externalLink,
-                      size: 18,
-                      color: AppColors.textSecondaryLight,
-                    ),
-                    onTap: () {},
-                  ),
+                  // SettingsTile(
+                  //   icon: LucideIcons.shieldCheck,
+                  //   title: 'Privacy Policy',
+                  //   trailing: const Icon(
+                  //     LucideIcons.externalLink,
+                  //     size: 18,
+                  //     color: AppColors.textSecondaryLight,
+                  //   ),
+                  //   onTap: () {},
+                  // ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.md),
-              _SettingsSection(
-                title: 'SUPPORT',
-                tiles: [
-                  SettingsTile(
-                    icon: LucideIcons.badgeQuestionMark,
-                    title: 'Help Center',
-                    trailing: const Icon(
-                      LucideIcons.chevronRight,
-                      size: 18,
-                      color: AppColors.textSecondaryLight,
-                    ),
-                    onTap: () {},
-                  ),
-                  SettingsTile(
-                    icon: LucideIcons.star,
-                    title: 'Rate the App',
-                    trailing: const Icon(
-                      LucideIcons.chevronRight,
-                      size: 18,
-                      color: AppColors.textSecondaryLight,
-                    ),
-                    onTap: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              _LogoutButton(),
-              const SizedBox(height: AppSpacing.xl),
-              _AppFooter(),
-              const SizedBox(height: AppSpacing.xl2),
+              // const SizedBox(height: AppSpacing.md),
+              // _SettingsSection(
+              //   title: 'SUPPORT',
+              //   tiles: [
+              //     SettingsTile(
+              //       icon: LucideIcons.badgeQuestionMark,
+              //       title: 'Help Center',
+              //       trailing: const Icon(
+              //         LucideIcons.chevronRight,
+              //         size: 18,
+              //         color: AppColors.textSecondaryLight,
+              //       ),
+              //       onTap: () {},
+              //     ),
+              //     SettingsTile(
+              //       icon: LucideIcons.star,
+              //       title: 'Rate the App',
+              //       trailing: const Icon(
+              //         LucideIcons.chevronRight,
+              //         size: 18,
+              //         color: AppColors.textSecondaryLight,
+              //       ),
+              //       onTap: () {},
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(height: AppSpacing.xl),
+              // _LogoutButton(),
+              // const SizedBox(height: AppSpacing.xl),
+              // _AppFooter(),
+              // const SizedBox(height: AppSpacing.xl2),
             ],
           ),
         );

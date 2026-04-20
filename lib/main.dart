@@ -1,4 +1,7 @@
 import 'package:expense_tracker/core/seed/seed_runner.dart';
+import 'package:expense_tracker/presentation/pin_lock/cubit/app_lock_cubit.dart';
+import 'package:expense_tracker/presentation/pin_lock/cubit/app_pin_lock_setting_cubit.dart';
+import 'package:expense_tracker/presentation/pin_lock/widget/app_lock_gate.dart';
 import 'package:expense_tracker/presentation/settings/cubit/setting_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,8 +27,13 @@ class MoneyFlowApp extends StatelessWidget {
         BlocProvider<SettingsCubit>(
           create: (_) => sl<SettingsCubit>()..loadSettings(),
         ),
+        BlocProvider<AppPinLockSettingCubit>(
+          create: (_) => sl<AppPinLockSettingCubit>()..loadAppLockSettings(),
+        ),
+        BlocProvider<AppLockCubit>(
+          create: (_) => sl<AppLockCubit>()..initialize(),
+        ),
       ],
-
       child: MaterialApp.router(
         title: 'MoneyFlow',
         debugShowCheckedModeBanner: false,
@@ -33,6 +41,9 @@ class MoneyFlowApp extends StatelessWidget {
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
         routerConfig: AppPages.router,
+        builder: (context, child) {
+          return AppLockGate(child: child ?? const SizedBox.shrink());
+        },
       ),
     );
   }

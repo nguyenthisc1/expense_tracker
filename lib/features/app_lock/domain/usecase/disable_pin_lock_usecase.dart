@@ -6,7 +6,7 @@ class DisablePinLockUsecase {
 
   const DisablePinLockUsecase(this._appLockRepository);
 
-  Future<AppLockSettingsEntity> call(String pin) {
+  Future<AppLockSettingsEntity> call() {
     return _appLockRepository.disablePinLock();
   }
 }
