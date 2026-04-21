@@ -1,0 +1,23 @@
+import 'package:expense_tracker/core/entity/transaction_type.dart';
+import 'package:expense_tracker/features/categories/domain/entity/category_entity.dart';
+
+abstract interface class CategoryRepository {
+  Future<List<CategoryEntity>> getCategories({TransactionType? type});
+  Future<List<CategoryEntity>> getAllCategories();
+
+  Future<CategoryEntity?> getCategoryById(String id);
+
+  Future<CategoryEntity> addCategory(CategoryEntity category);
+
+  Future<CategoryEntity> updateCategory(CategoryEntity category);
+
+  Future<void> deleteCategory(String id);
+
+  Future<bool> isCategoryInUse(String categoryId);
+
+  Future<bool> existsCategoryName({
+    required String name,
+    required TransactionType type,
+    String? excludeId,
+  });
+}
