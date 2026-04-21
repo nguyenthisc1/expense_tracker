@@ -10,6 +10,12 @@ import 'package:expense_tracker/features/app_lock/domain/usecase/get_app_lock_se
 import 'package:expense_tracker/features/app_lock/domain/usecase/verify_pin_lock_usecase.dart';
 import 'package:expense_tracker/features/categories/domain/usecase/get_all_categories_usecase.dart';
 import 'package:expense_tracker/features/categories/domain/usecase/update_category_usecase.dart';
+import 'package:expense_tracker/features/export/data/datasource/export_local_datasource.dart';
+import 'package:expense_tracker/features/export/data/datasource/export_local_datasource_impl.dart';
+import 'package:expense_tracker/features/export/data/repository/export_repository_impl.dart';
+import 'package:expense_tracker/features/export/domain/repository/export_repository.dart';
+import 'package:expense_tracker/features/export/domain/usecase/export_report_pdf_usecase.dart';
+import 'package:expense_tracker/features/export/domain/usecase/export_transaction_csv_usecase.dart';
 import 'package:expense_tracker/features/reports/domain/usecase/get_detailed_report_usecase.dart';
 import 'package:expense_tracker/features/settings/domain/usecase/update_setting_usecase.dart';
 import 'package:expense_tracker/presentation/categories/cubit/categories_cubit.dart';
@@ -125,6 +131,10 @@ void _registerDataSources() {
   sl.registerLazySingleton<AppLockLocalDatasource>(
     () => AppLockLocalDatasourceImpl(sl<FlutterSecureStorage>()),
   );
+
+  sl.registerLazySingleton<ExportLocalDatasource>(
+    () => ExportLocalDatasourceImpl(),
+  );
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -155,6 +165,10 @@ void _registerRepositories() {
 
   sl.registerLazySingleton<AppLockRepository>(
     () => AppLockRepositoryImpl(sl<AppLockLocalDatasource>()),
+  );
+
+  sl.registerLazySingleton<ExportRepository>(
+    () => ExportRepositoryImpl(sl<ExportLocalDatasource>()),
   );
 }
 
@@ -231,6 +245,14 @@ void _registerUseCases() {
     () => DisablePinLockUsecase(sl<AppLockRepository>()),
   );
   sl.registerLazySingleton(() => VerifyPinLockUsecase(sl<AppLockRepository>()));
+
+  // ── Export ───────────────────────────────────────────────────────────────
+  sl.registerLazySingleton(
+    () => ExportTransactionCsvUseCase(sl<ExportRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ExportReportPdfUsecase(sl<ExportRepository>()),
+  );
 }
 
 // ────────────────────────────────────────────────────────────────────────────
